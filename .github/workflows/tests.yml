@@ -1,0 +1,36 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt coverage
+
+      - name: Run tests with coverage
+        run: >-
+          python -m coverage run
+          --source=domain,handlers,infrastructure,ui,main
+          -m unittest discover -s tests -v
+
+      - name: Enforce coverage threshold
+        run: python -m coverage report -m --fail-under=100
