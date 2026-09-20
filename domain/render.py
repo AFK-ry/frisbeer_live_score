@@ -1,6 +1,8 @@
 from copy import deepcopy
+from html import escape
 from urllib.parse import quote
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from wcwidth import wcswidth
 import ui.text as uitxt
 from domain.engine import (
     compute_state,
@@ -14,6 +16,8 @@ from domain.actions import AssignKnocks, SwitchSides, Action, StartGame, StartRo
 MARK_MAP = {"b": "k", "k": "f", "f": "b", "u": "k", " ": " "}
 
 EMOJI_MAP = {"b": "🍺", "k": "💥", "f": "🤯", " ": "🕳️", "u": "🙃"}
+
+NUMBER_MAP = ["2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣"]
 
 ACTION_MAP = {
     AssignKnocks: "{emoji}>{player}",
@@ -44,7 +48,8 @@ def render(
 
     t1_score, t2_score = count_round_wins(game.history)
 
-    reply = f"`{render_game_message(game)}`"
+    message = render_game_message(game)
+    reply = f"<code>{escape(message)}</code>"
 
     t1_name_buttons = [
         InlineKeyboardButton(
@@ -187,26 +192,78 @@ def render_game_message(game: Game, pending_action: Action | None = None):
 
 
 def render_round_report(game: Game) -> str:
+    MAX_WIDTH = 31
     team1 = game.team1
     team2 = game.team2
     actions = get_current_round_knocks(game.history)
     winner = game.history[-1].winner
+    t1_rounds, t2_rounds = count_round_wins(game.history)
+    round_n = t1_rounds + t2_rounds
     knocks = count_player_knocks(game, actions)
     round_report = ""
     if winner == "team1":
-        round_report += f"{team1.emoji} {team1.name} won the round!\n"
+        round_report += f"{team1.emoji} {team1.name} won round {round_n}!\n"
     else:
-        round_report += f"{team2.emoji} {team2.name} won the round!\n"
+        round_report += f"{team2.emoji} {team2.name} won round {round_n}!\n"
+    round_report += f"{team1.emoji} {t1_rounds} - {t2_rounds} {team2.emoji}\n\n"
     round_report += "Round report:\n"
-    round_report += f"{team1.emoji} {team1.name}\n"
-    w = str(max(len(pname) for pname in team1.players + team2.players))
+    round_report += f"<b>{team1.emoji} {team1.name}</b>\n"
+    w = str(max(len(pname) for pname in team1.players))
     for player in team1.players:
-        knock_n, selfknocks = knocks["team1"][player]
-        round_report += f"{player:<{w}} 💥: {knock_n:>1} {'(-' + str(selfknocks) + ')' if selfknocks != 0 else "":>4}\n"
-    round_report += f"{team2.emoji} {team2.name}\n"
+        player_str = f"{player:<{w}}"
+
+        knock_n = knocks["team1"][player]["knocks"]
+        knock_str = f" {knock_n}x💥"
+
+        selfknocks = knocks["team1"][player]["selfknocks"]
+        selfknock_str = f" {selfknocks}x💀" if selfknocks != 0 else ""
+
+        flips = knocks["team1"][player]["flips"]
+        flip_str = f" {flips}x🤯" if flips != 0 else ""
+
+        multiple = [
+            (i, n) for i, n in enumerate(knocks["team1"][player]["multiple"]) if n > 0
+        ]
+        mult_str = (
+            (" " + " ".join([f"{n}x{NUMBER_MAP[i]}" for i, n in multiple]))
+            if len(multiple) > 0
+            else ""
+        )
+        if wcswidth(f"{player_str} {knock_str} {flip_str} {mult_str}") > MAX_WIDTH:
+            round_report += (
+                f"{player_str}\n  {knock_str}{selfknock_str}{flip_str}{mult_str}\n"
+            )
+            continue
+        round_report += f"{player_str}{knock_str}{selfknock_str}{flip_str}{mult_str}\n"
+
+    round_report += f"\n{team2.emoji} {team2.name}\n"
+    w = str(max(len(pname) for pname in team2.players))
     for player in team2.players:
-        knock_n, selfknocks = knocks["team2"][player]
-        round_report += f"{player:<{w}} 💥: {knock_n:>1} {'(-' + str(selfknocks) + ')' if selfknocks != 0 else "":>4}\n"
+        player_str = f"{player:<{w}}"
+
+        knock_n = knocks["team2"][player]["knocks"]
+        knock_str = f" {knock_n}x💥"
+
+        selfknocks = knocks["team2"][player]["selfknocks"]
+        selfknock_str = f" {selfknocks}x💀" if selfknocks != 0 else ""
+
+        flips = knocks["team2"][player]["flips"]
+        flip_str = f" {flips}x🤯" if flips != 0 else ""
+
+        multiple = [
+            (i, n) for i, n in enumerate(knocks["team2"][player]["multiple"]) if n > 0
+        ]
+        mult_str = (
+            (" " + " ".join([f"{n}x{NUMBER_MAP[i]}" for i, n in multiple]))
+            if len(multiple) > 0
+            else ""
+        )
+        if wcswidth(f"{player_str} {knock_str} {flip_str} {mult_str}") > MAX_WIDTH:
+            round_report += (
+                f"{player_str}\n  {knock_str}{selfknock_str}{flip_str}{mult_str}\n"
+            )
+            continue
+        round_report += f"{player_str}{knock_str}{selfknock_str}{flip_str}{mult_str}\n"
     return round_report
 
 
@@ -246,11 +303,11 @@ def render_game_info_string(game):
     t1_score, t2_score = count_round_wins(game.history)
     return (
         f"{game.team1.emoji} {t1_score} - {t2_score} {game.team2.emoji}\n\n"
-        f"{game.team1.emoji} *{game.team1.name}*\n"
-        f"*Players:* {', '.join(game.team1.players)}\n"
+        f"{game.team1.emoji} <b>{game.team1.name}</b>\n"
+        f"<b>Players:</b> {', '.join(game.team1.players)}\n"
         "vs.\n"
-        f"{game.team2.emoji} *{game.team2.name}*\n"
-        f"*Players:* {', '.join(game.team2.players)}\n"
+        f"{game.team2.emoji} <b>{game.team2.name}</b>\n"
+        f"<b>Players:</b> {', '.join(game.team2.players)}\n"
     )
 
 
@@ -267,8 +324,8 @@ def render_game_start_message(game):
 
 def render_confirm_delete_message(game):
     return (
-        f"*Really delete game {game.id}*?\n\n"
-        f"{game.team1.emoji} *{game.team1.name}*\n"
+        f"<b>Really delete game {game.id}</b>?\n\n"
+        f"{game.team1.emoji} <b>{game.team1.name}</b>\n"
         "vs.\n"
-        f"{game.team2.emoji} *{game.team2.name}*\n"
+        f"{game.team2.emoji} <b>{game.team2.name}</b>\n"
     )

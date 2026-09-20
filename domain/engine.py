@@ -74,8 +74,24 @@ def get_current_round_knocks(actions: list[Action]) -> list[AssignKnocks]:
 
 def count_player_knocks(game, actions: list[AssignKnocks]):
     results = {
-        "team1": {player: [0, 0] for player in game.team1.players},
-        "team2": {player: [0, 0] for player in game.team2.players},
+        "team1": {
+            player: {
+                "knocks": 0,
+                "selfknocks": 0,
+                "flips": 0,
+                "multiple": [0] * 7,  # [2x, 3x, 4x, 5x, 6x, 7x, 8x]
+            }
+            for player in game.team1.players
+        },
+        "team2": {
+            player: {
+                "knocks": 0,
+                "selfknocks": 0,
+                "flips": 0,
+                "multiple": [0] * 7,  # [2x, 3x, 4x, 5x, 6x, 7x, 8x]
+            }
+            for player in game.team2.players
+        },
     }
     for knock in actions:
         team = knock.team
@@ -83,12 +99,18 @@ def count_player_knocks(game, actions: list[AssignKnocks]):
         beers = knock.knocked_beers
         for beer in beers:
             owner, _, res = beer
-            if res != "k":
+            if res == "f":
+                results[team][player]["flips"] += 1
                 continue
             if team == owner:
-                results[team][player][1] += 1
+                results[team][player]["selfknocks"] += 1
                 continue
-            results[team][player][0] += 1
+            results[team][player]["knocks"] += 1
+
+        multiple = len([b for b in beers if (b[0] != team and b[2] == "k")])
+        if multiple > 1:
+            results[team][player]["multiple"][multiple - 2] += 1
+
     return results
 
 

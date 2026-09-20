@@ -33,8 +33,12 @@ def make_ctx(history=None, action="live_game", **data_fields):
     )
     data = CallbackData(action=action, gid="game-1", **data_fields)
     return Ctx(
-        update=SimpleNamespace(callback_query=query), context=context, data=data,
-        game=game, storage=storage, broadcaster=broadcaster,
+        update=SimpleNamespace(callback_query=query),
+        context=context,
+        data=data,
+        game=game,
+        storage=storage,
+        broadcaster=broadcaster,
         user=SimpleNamespace(id=1, username="tester", first_name="T", last_name="U"),
     )
 
@@ -75,7 +79,9 @@ class GameHandlerTests(unittest.IsolatedAsyncioTestCase):
         ctx = make_ctx()
         ctx.context.user_data = {"marked": {"game-1": {("team1", 0): "k"}}}
         await game_handlers.show_live_game(ctx)
-        ctx.update.callback_query.edit_message_text.side_effect = BadRequest("Message is not modified")
+        ctx.update.callback_query.edit_message_text.side_effect = BadRequest(
+            "Message is not modified"
+        )
         await game_handlers.show_live_game(ctx)
 
     async def test_show_live_game_reraises_other_bad_request(self):
@@ -89,7 +95,9 @@ class GameHandlerTests(unittest.IsolatedAsyncioTestCase):
         ctx.update.callback_query.data = "mark:game-1:team1:0"
         with patch("handlers.game.show_live_game", AsyncMock()):
             await original(game_handlers.mark_beer)(ctx)
-            self.assertEqual(ctx.context.user_data["marked"]["game-1"][("team1", 0)], "k")
+            self.assertEqual(
+                ctx.context.user_data["marked"]["game-1"][("team1", 0)], "k"
+            )
             ctx.context.user_data["marked"]["game-1"][("team1", 0)] = "f"
             await original(game_handlers.mark_beer)(ctx)
             self.assertNotIn(("team1", 0), ctx.context.user_data["marked"]["game-1"])
@@ -146,7 +154,11 @@ class GameHandlerTests(unittest.IsolatedAsyncioTestCase):
             await original(game_handlers.start_round)(ctx)
 
     async def test_confirm_end_game_all_results(self):
-        for history in ([EndRound("team1")], [EndRound("team2")], [EndRound("team1"), EndRound("team2")]):
+        for history in (
+            [EndRound("team1")],
+            [EndRound("team2")],
+            [EndRound("team1"), EndRound("team2")],
+        ):
             await original(game_handlers.confirm_end_game)(make_ctx(history=history))
 
     async def test_end_game(self):

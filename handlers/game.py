@@ -40,12 +40,14 @@ async def show_game_info(ctx: Ctx):
         result_string = render_result_string(
             t1_score, t2_score, ctx.game.team1.emoji, ctx.game.team2.emoji
         )
-        keyboard = game_info_continue_keyboard(ctx.data.gid, result_string, ctx.data.round_n)
+        keyboard = game_info_continue_keyboard(
+            ctx.data.gid, result_string, ctx.data.round_n
+        )
 
     reply = render_game_info_string(ctx.game)
     await ctx.update.callback_query.answer()
     await ctx.update.callback_query.edit_message_text(
-        reply, reply_markup=keyboard, parse_mode="Markdown"
+        reply, reply_markup=keyboard, parse_mode="HTML"
     )
 
 
@@ -79,7 +81,7 @@ async def confirm_delete(ctx: Ctx):
     reply = render_confirm_delete_message(ctx.game)
     await ctx.update.callback_query.answer()
     await ctx.update.callback_query.edit_message_text(
-        reply, parse_mode="Markdown", reply_markup=confirm_delete_keyboard(ctx.data.gid)
+        reply, parse_mode="HTML", reply_markup=confirm_delete_keyboard(ctx.data.gid)
     )
 
 
@@ -97,7 +99,7 @@ async def delete_game(ctx: Ctx):
     await ctx.update.callback_query.edit_message_text(
         f"Game id {ctx.data.gid} deleted.",
         reply_markup=delete_keyboard(),
-        parse_mode="Markdown",
+        parse_mode="HTML",
     )
 
 
@@ -117,7 +119,7 @@ async def show_live_game(ctx: Ctx):
     await ctx.update.callback_query.answer()
     try:
         await ctx.update.callback_query.edit_message_text(
-            text, reply_markup=keyboard, parse_mode="Markdown"
+            text, reply_markup=keyboard, parse_mode="HTML"
         )
     except BadRequest as e:
         if "Message is not modified" in str(e):
@@ -273,17 +275,17 @@ async def confirm_end_game(ctx: Ctx):
     round_results = [a for a in ctx.game.history if isinstance(a, EndRound)]
     t1_score = len([round for round in round_results if round.winner == "team1"])
     t2_score = len([round for round in round_results if round.winner == "team2"])
-    reply = "*Really end game?*\n\n"
+    reply = "<b>Really end game?</b>\n\n"
     if t1_score > t2_score:
-        reply += f"{ctx.game.team1.emoji} *{ctx.game.team1.name}* wins {t1_score} - {t2_score}\n"
+        reply += f"{ctx.game.team1.emoji} <b>{ctx.game.team1.name}</b> wins {t1_score} - {t2_score}\n"
     elif t2_score > t1_score:
-        reply += f"{ctx.game.team2.emoji} *{ctx.game.team2.name}* wins {t2_score} - {t1_score}\n"
+        reply += f"{ctx.game.team2.emoji} <b>{ctx.game.team2.name}</b> wins {t2_score} - {t1_score}\n"
     else:
-        reply += f"Tie {ctx.game.team1.emoji} *{ctx.game.team1.name}* {t1_score} - {t2_score} *{ctx.game.team2.name}* {ctx.game.team2.emoji}"
+        reply += f"Tie {ctx.game.team1.emoji} <b>{ctx.game.team1.name}</b> {t1_score} - {t2_score} <b>{ctx.game.team2.name}</b> {ctx.game.team2.emoji}"
     keyboard = confirm_end_keyboard(ctx.data.gid)
     await ctx.update.callback_query.answer()
     await ctx.update.callback_query.edit_message_text(
-        reply, reply_markup=keyboard, parse_mode="Markdown"
+        reply, reply_markup=keyboard, parse_mode="HTML"
     )
 
 
@@ -297,5 +299,5 @@ async def end_game(ctx: Ctx):
     logger.info("User: %s | Ended game | gid=%s", ctx.user_str, ctx.game.id)
     await ctx.update.callback_query.answer()
     await ctx.update.callback_query.edit_message_text(
-        message, reply_markup=keyboard, parse_mode="Markdown"
+        message, reply_markup=keyboard, parse_mode="HTML"
     )

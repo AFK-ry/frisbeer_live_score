@@ -17,22 +17,22 @@ ABOUT_MESSAGE = (
 # GAME CREATION
 NUM_VALUES_ERROR = "⚠️ Please enter 3 to 5 values: player1, player2, player3, team name(optional), team emoji(optional)"
 TEAM_NAME_LEN_ERROR = "⚠️ Team name needs to be between 2 and 20 characters long!"
-TEAM_EMOJI_LEN_ERROR = "⚠️ Team emoji needs to be a 3 character or shorter!"
+TEAM_EMOJI_LEN_ERROR = "⚠️ Team emoji needs to be a single emoji/character!"
 PLAYER_NAME_LEN_ERROR = "⚠️ Player names need to be between 2 and 20 characters long!"
 
 CANCEL_GAME_CREATION = "⬅️ Cancel game creation"
 TEAM1_PROMPT = (
     "🤖> Enter team 1 details as:\n"
-    "*player1, player2, player3, team name, team emoji*\n\n"
+    "<b>player1, player2, player3, team name, team emoji</b>\n\n"
     "(Team name and emoji are optional)\n"
     "Example: joensuu, pintti, esari, BBfC, 🥤\n"
-    "Inputs need to be separated by commas '*,*'"
+    "Inputs need to be separated by commas '<b>,</b>'"
 )
 TEAM2_PROMPT = (
     "🤖> Now enter Team 2 details.\n\n"
-    "player1, player2, player3, team name, team emoji\n"
+    "<b>player1, player2, player3, team name, team emoji</b>\n"
     "(Team name and emoji are optional)\n"
-    "Inputs need to be separated by commas '*,*'"
+    "Inputs need to be separated by commas '<b>,</b>'"
 )
 CHECK_CREATED_GAME = "Check your created game in the games list."
 CREATED_GAMES_LIST = "📋 Created games list"
