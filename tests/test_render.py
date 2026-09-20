@@ -24,25 +24,37 @@ class RenderTests(unittest.TestCase):
     def test_beer_helpers(self):
         self.assertEqual(beer_emoji("?"), "?")
         self.assertEqual(beer_row(["b", "?"]), beer_emoji("b") + "?")
-        self.assertEqual([mark_format_beer(x) for x in ["b", "k", "f", "u", " ", "?"]], ["k", "f", "b", "k", " ", "?"])
+        self.assertEqual(
+            [mark_format_beer(x) for x in ["b", "k", "f", "u", " ", "?"]],
+            ["k", "f", "b", "k", " ", "?"],
+        )
 
     def test_overlay_copies_state_and_updates_both_teams(self):
         original = initial_state()
-        result = apply_marked_overlay(original, {("team1", "0"): "k", ("team2", 1): "f"})
+        result = apply_marked_overlay(
+            original, {("team1", "0"): "k", ("team2", 1): "f"}
+        )
         self.assertEqual(original, initial_state())
         self.assertEqual((result.team1_beers[0], result.team2_beers[1]), ("k", "f"))
 
     def test_render_builds_normal_and_reversed_keyboards(self):
         game = make_game([StartGame()])
         text, markup = render(game, initial_state())
-        self.assertTrue(text.startswith("`"))
-        self.assertEqual(markup.inline_keyboard[0][0].callback_data, "assign:game-1:team1:Alice")
-        self.assertEqual(markup.inline_keyboard[-1][0].callback_data, "end_round:game-1:team1")
+        self.assertTrue(text.startswith("<code>"))
+        self.assertEqual(
+            markup.inline_keyboard[0][0].callback_data, "assign:game-1:team1:Alice"
+        )
+        self.assertEqual(
+            markup.inline_keyboard[-1][0].callback_data, "end_round:game-1:team1"
+        )
 
         reversed_state = initial_state()
         reversed_state.reverse = True
         _, reversed_markup = render(game, reversed_state)
-        self.assertEqual(reversed_markup.inline_keyboard[0][0].callback_data, "assign:game-1:team2:Dan")
+        self.assertEqual(
+            reversed_markup.inline_keyboard[0][0].callback_data,
+            "assign:game-1:team2:Dan",
+        )
 
     def test_game_message_for_every_action_type(self):
         cases = [
@@ -69,7 +81,7 @@ class RenderTests(unittest.TestCase):
         for winner, name in [("team1", "Blue"), ("team2", "Red")]:
             game = make_game([StartGame(), knock, EndRound(winner)])
             report = render_round_report(game)
-            self.assertIn(f"{name} won the round!", report)
+            self.assertIn(f"{name} won round 1!", report)
             self.assertIn("Alice", report)
 
     def test_win_and_result_messages_cover_win_loss_and_tie(self):
@@ -86,7 +98,7 @@ class RenderTests(unittest.TestCase):
 
     def test_static_game_messages(self):
         game = make_game([EndRound("team1")])
-        self.assertIn("*Blue*", render_game_info_string(game))
+        self.assertIn("<b>Blue</b>", render_game_info_string(game))
         self.assertIn("New game starting!", render_game_start_message(game))
         self.assertIn("game-1", render_confirm_delete_message(game))
 

@@ -2,6 +2,7 @@ import uuid
 import time
 from telegram import Update
 from telegram.ext import CallbackContext
+from wcwidth import wcswidth
 from infrastructure.logging_config import logger
 from domain.models import Team, Game
 from ui.keyboards import (
@@ -40,7 +41,7 @@ async def new_game(update: Update, context: CallbackContext):
     await update.callback_query.answer()
     await update.callback_query.edit_message_text(
         uitxt.TEAM1_PROMPT,
-        parse_mode="Markdown",
+        parse_mode="HTML",
         reply_markup=cancel_team_creation_keyboard(),
     )
 
@@ -67,7 +68,7 @@ async def handle_message(update: Update, context: CallbackContext):
 
     if len(parts) not in range(3, 6):
         await update.message.reply_text(
-            uitxt.NUM_VALUES_ERROR, parse_mode="Markdown", reply_markup=cancel_markup
+            uitxt.NUM_VALUES_ERROR, parse_mode="HTML", reply_markup=cancel_markup
         )
         return
 
@@ -81,7 +82,7 @@ async def handle_message(update: Update, context: CallbackContext):
         if len(team_name) not in range(2, 21):
             await update.message.reply_text(
                 uitxt.TEAM_NAME_LEN_ERROR,
-                parse_mode="Markdown",
+                parse_mode="HTML",
                 reply_markup=cancel_markup,
             )
             return
@@ -90,14 +91,14 @@ async def handle_message(update: Update, context: CallbackContext):
         if len(team_name) not in range(2, 21):
             await update.message.reply_text(
                 uitxt.TEAM_NAME_LEN_ERROR,
-                parse_mode="Markdown",
+                parse_mode="HTML",
                 reply_markup=cancel_markup,
             )
             return
-        if len(team_emoji) > 3:
+        if wcswidth(team_emoji) > 3:
             await update.message.reply_text(
                 uitxt.TEAM_EMOJI_LEN_ERROR,
-                parse_mode="Markdown",
+                parse_mode="HTML",
                 reply_markup=cancel_markup,
             )
             return
@@ -108,7 +109,7 @@ async def handle_message(update: Update, context: CallbackContext):
     ):
         await update.message.reply_text(
             uitxt.PLAYER_NAME_LEN_ERROR,
-            parse_mode="Markdown",
+            parse_mode="HTML",
             reply_markup=cancel_markup,
         )
         return
@@ -121,8 +122,10 @@ async def handle_message(update: Update, context: CallbackContext):
         state["team1"] = Team(name=team_name, emoji=team_emoji, players=[p1, p2, p3])
         state["stage"] = 2
         await update.message.reply_text(
-            f"✅ Team 1 set as *{team_name}* {team_emoji}!" + "\n" + uitxt.TEAM2_PROMPT,
-            parse_mode="Markdown",
+            f"✅ Team 1 set as <b>{team_name}</B> {team_emoji}!"
+            + "\n"
+            + uitxt.TEAM2_PROMPT,
+            parse_mode="HTML",
             reply_markup=cancel_markup,
         )
         return
@@ -155,10 +158,10 @@ async def handle_message(update: Update, context: CallbackContext):
             game.team2.name,
         )
         await update.message.reply_text(
-            f"✅ Team 2 set as *{team_name}* {team_emoji}!"
+            f"✅ Team 2 set as <b>{team_name}</b> {team_emoji}!"
             + "\n"
             + uitxt.CHECK_CREATED_GAME,
-            parse_mode="Markdown",
+            parse_mode="HTML",
             reply_markup=finalize_team_creation_keyboard(),
         )
         return

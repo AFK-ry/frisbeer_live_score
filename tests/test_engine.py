@@ -89,11 +89,17 @@ class EngineTests(unittest.TestCase):
 
         results = count_player_knocks(game, actions)
 
-        self.assertEqual(results["team1"]["Alice"], [1, 1])
-        self.assertEqual(results["team2"]["Dan"], [0, 0])
+        self.assertEqual(results["team1"]["Alice"], {"knocks": 1, "flips": 1, "selfknocks": 1, "multiple": [0]*7})
+        self.assertEqual(results["team2"]["Dan"], {"knocks": 0, "flips": 0, "selfknocks": 0, "multiple": [0]*7})
 
     def test_count_round_wins_ignores_other_actions(self):
-        actions = [StartGame(), EndRound("team1"), StartRound(2), EndRound("team2"), EndRound("team1")]
+        actions = [
+            StartGame(),
+            EndRound("team1"),
+            StartRound(2),
+            EndRound("team2"),
+            EndRound("team1"),
+        ]
 
         self.assertEqual(count_round_wins(actions), (2, 1))
 

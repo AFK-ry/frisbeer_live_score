@@ -5,7 +5,7 @@ class Broadcaster:
 
     async def send(self, text):
         return await self.bot.send_message(
-            chat_id=self.chat_id, text=f"`{text}`", parse_mode="Markdown"
+            chat_id=self.chat_id, text=f"<code>{text}</code>", parse_mode="HTML"
         )
 
     async def delete(self, msg_id):

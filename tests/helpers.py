@@ -2,7 +2,6 @@ import logging
 
 from domain.models import Game, Team
 
-
 logging.getLogger("frisbeer_live_score_bot").disabled = True
 
 

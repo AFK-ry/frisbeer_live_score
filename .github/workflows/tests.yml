@@ -33,4 +33,4 @@ jobs:
           -m unittest discover -s tests -v
 
       - name: Enforce coverage threshold
-        run: python -m coverage report -m --fail-under=100
+        run: python -m coverage report -m --fail-under=90

@@ -32,7 +32,7 @@ class CallbackDataTests(unittest.TestCase):
 
 
 class BroadcasterTests(unittest.IsolatedAsyncioTestCase):
-    async def test_send_targets_channel_with_markdown(self):
+    async def test_send_targets_channel_with_HTML(self):
         bot = SimpleNamespace(send_message=AsyncMock(return_value="message"))
         broadcaster = Broadcaster(bot, -100123)
 
@@ -40,7 +40,7 @@ class BroadcasterTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual(result, "message")
         bot.send_message.assert_awaited_once_with(
-            chat_id=-100123, text="`score`", parse_mode="Markdown"
+            chat_id=-100123, text="<code>score</code>", parse_mode="HTML"
         )
 
     async def test_delete_targets_channel_and_message(self):
@@ -53,7 +53,7 @@ class BroadcasterTests(unittest.IsolatedAsyncioTestCase):
 
 class ContextDecoratorTests(unittest.IsolatedAsyncioTestCase):
     async def test_decorator_builds_context_from_update_and_application(self):
-        game = make_game([ ])
+        game = make_game([])
         storage = SimpleNamespace(load=unittest.mock.Mock(return_value=game))
         broadcaster = object()
         user = SimpleNamespace(id=7, username="tester")
@@ -85,9 +85,15 @@ class ContextDecoratorTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_user_string_without_username(self):
         ctx = Ctx(
-            update=None, context=None, data=None, game=None, storage=None,
+            update=None,
+            context=None,
+            data=None,
+            game=None,
+            storage=None,
             broadcaster=None,
-            user=SimpleNamespace(id=3, username=None, first_name="First", last_name="Last"),
+            user=SimpleNamespace(
+                id=3, username=None, first_name="First", last_name="Last"
+            ),
         )
         self.assertEqual(ctx.user_str, "First Last (3)")
 

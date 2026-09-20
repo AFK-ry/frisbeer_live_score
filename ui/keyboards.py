@@ -78,7 +78,8 @@ def game_info_continue_keyboard(
         [
             [
                 InlineKeyboardButton(
-                    uitxt.CONTINUE_GAME, callback_data=f"start_round:{game_id}:{round_n}"
+                    uitxt.CONTINUE_GAME,
+                    callback_data=f"start_round:{game_id}:{round_n}",
                 )
             ],
             [
