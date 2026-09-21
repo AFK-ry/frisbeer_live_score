@@ -8,6 +8,7 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
         [
             [InlineKeyboardButton(uitxt.NEW_GAME, callback_data="new_game")],
             [InlineKeyboardButton(uitxt.GAME_LIST, callback_data="game_list")],
+            [InlineKeyboardButton(uitxt.LEGEND, callback_data="legend")],
             [InlineKeyboardButton(uitxt.ABOUT, callback_data="about")],
         ]
     )
