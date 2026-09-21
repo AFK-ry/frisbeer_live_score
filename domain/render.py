@@ -2,7 +2,6 @@ from copy import deepcopy
 from html import escape
 from urllib.parse import quote
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from wcwidth import wcswidth
 import ui.text as uitxt
 from domain.engine import (
     compute_state,
@@ -215,6 +214,9 @@ def render_round_report(game: Game) -> str:
         knock_n = knocks["team1"][player]["knocks"]
         knock_str = f" {knock_n}x💥"
 
+        if knock_n == 8:
+            player_str += "♠️"
+
         selfknocks = knocks["team1"][player]["selfknocks"]
         selfknock_str = f" {selfknocks}x💀" if selfknocks != 0 else ""
 
@@ -229,12 +231,9 @@ def render_round_report(game: Game) -> str:
             if len(multiple) > 0
             else ""
         )
-        if wcswidth(f"{player_str} {knock_str} {flip_str} {mult_str}") > MAX_WIDTH:
-            round_report += (
-                f"{player_str}\n  {knock_str}{selfknock_str}{flip_str}{mult_str}\n"
-            )
-            continue
-        round_report += f"{player_str}{knock_str}{selfknock_str}{flip_str}{mult_str}\n"
+        round_report += (
+            f"{player_str}\n {knock_str}{selfknock_str}{flip_str}{mult_str}\n"
+        )
 
     round_report += f"\n{team2.emoji} {team2.name}\n"
     w = str(max(len(pname) for pname in team2.players))
@@ -243,6 +242,9 @@ def render_round_report(game: Game) -> str:
 
         knock_n = knocks["team2"][player]["knocks"]
         knock_str = f" {knock_n}x💥"
+
+        if knock_n == 8:
+            player_str += "♠️"
 
         selfknocks = knocks["team2"][player]["selfknocks"]
         selfknock_str = f" {selfknocks}x💀" if selfknocks != 0 else ""
@@ -258,12 +260,10 @@ def render_round_report(game: Game) -> str:
             if len(multiple) > 0
             else ""
         )
-        if wcswidth(f"{player_str} {knock_str} {flip_str} {mult_str}") > MAX_WIDTH:
-            round_report += (
-                f"{player_str}\n  {knock_str}{selfknock_str}{flip_str}{mult_str}\n"
-            )
-            continue
-        round_report += f"{player_str}{knock_str}{selfknock_str}{flip_str}{mult_str}\n"
+        round_report += (
+            f"{player_str}\n {knock_str}{selfknock_str}{flip_str}{mult_str}\n"
+        )
+
     return round_report
 
 
