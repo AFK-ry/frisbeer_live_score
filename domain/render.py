@@ -2,6 +2,7 @@ from copy import deepcopy
 from html import escape
 from urllib.parse import quote
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from wcwidth import wcswidth
 import ui.text as uitxt
 from domain.engine import (
     compute_state,
