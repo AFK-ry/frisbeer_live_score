@@ -176,6 +176,11 @@ async def game_list(update: Update, context: CallbackContext):
         uitxt.GAME_LIST_HEADER, reply_markup=gamelist
     )
 
+async def legend(update: Update, _: CallbackContext):
+    await update.callback_query.answer()
+    await update.callback_query.edit_message_text(
+        uitxt.LEGEND_MESSAGE, reply_markup=back_to_main_keyboard()
+    )
 
 async def about(update: Update, _: CallbackContext):
     await update.callback_query.answer()

@@ -3,6 +3,7 @@ WELCOME = "🤖> Welcome to Frisbeer LiveScore! 🥏🍺"
 # MAIN MENU KEYBOARD
 NEW_GAME = "➕ New game"
 GAME_LIST = "📋 Game list"
+LEGEND = "🔑 Legend"
 ABOUT = "❓ About"
 
 BACK_TO_MAIN_MENU = "⬅️ Back to main menu"
@@ -12,6 +13,18 @@ ABOUT_MESSAGE = (
     "Bot for broadcasting frisbeer game results live. "
     "Inspired by the original livescore bot made by jsloth.\n\n"
     "Contact @joensuu if you find bugs or issues with the bot"
+)
+
+# LEGEND
+LEGEND_MESSAGE = (
+    "🍺 = Standing beer\n"
+    "💥 = Beer knock\n"
+    "🕳️ = Empty space after beer knock\n"
+    "🤯 = Beer flipped with throw\n"
+    "🙃 = Flipped beer\n"
+    "💀 = Own beer knocked\n"
+    "♠️ = Ace (8 knocks in 1 round)\n"
+    "2️⃣, 3️⃣, 4️⃣... = Multiple knocks with 1 throw\n"
 )
 
 # GAME CREATION

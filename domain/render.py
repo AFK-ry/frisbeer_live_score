@@ -329,3 +329,6 @@ def render_confirm_delete_message(game):
         "vs.\n"
         f"{game.team2.emoji} <b>{game.team2.name}</b>\n"
     )
+
+def render_legend():
+    return LEGEND
